@@ -10,9 +10,9 @@ namespace PTP
 		: m_ioContext(ioContext)
 		, m_localAdapter(boost::asio::ip::make_address(ipAddress))
 		, m_eventSocket(ioContext, boost::asio::ip::udp::endpoint(
-		boost::asio::ip::udp::v4()/*m_localAdapter*/, eventPort))
+			boost::asio::ip::udp::v4(), eventPort))
 		, m_generalSocket(ioContext, boost::asio::ip::udp::endpoint(
-		boost::asio::ip::udp::v4()/*m_localAdapter*/, generalPort))
+			boost::asio::ip::udp::v4(), generalPort))
 		, m_remoteEventEndpoint(boost::asio::ip::udp::endpoint(boost::asio::ip::address_v4{}, 0))
 		, m_remoteGeneralEndpoint(boost::asio::ip::udp::endpoint(boost::asio::ip::address_v4{}, 0))
 	{
@@ -23,10 +23,10 @@ namespace PTP
 		//m_eventSocket.set_option(boost::asio::ip::multicast::enable_loopback(true));
 		m_eventSocket.set_option(boost::asio::ip::multicast::outbound_interface(m_localAdapter.to_v4()));
 		m_generalSocket.set_option(boost::asio::ip::multicast::outbound_interface(m_localAdapter.to_v4()));
-
+	
 		std::cout << "PTP Server listening on Event Port: "
 			<< eventPort << " and General Port: " << generalPort << std::endl;
-
+	
 
 		boost::asio::co_spawn(m_ioContext, Broadcast(), RethrowException);
 		boost::asio::co_spawn(m_ioContext, Receive(), RethrowException);
@@ -64,8 +64,8 @@ namespace PTP
 	{
 		try
 		{
-			const boost::asio::ip::udp::endpoint multicastEndpoint{ c_multicastEvent, c_ptpEventPort };
-
+			const boost::asio::ip::udp::endpoint multicastEndpoint{ m_localAdapter.is_loopback()?
+				boost::asio::ip::make_address(c_clientIP):c_multicastEvent, c_ptpEventPort };
 			const std::vector<uint8_t> syncBuffer{ CreateSyncMessage() };
 			m_syncTimestamp = GetCurrentPtpTime();
 			const size_t bytesSent
@@ -92,8 +92,8 @@ namespace PTP
 	{
 		try
 		{
-			const boost::asio::ip::udp::endpoint multicastEndpoint{ c_multicastGeneral, c_ptpGeneralPort };
-
+			const boost::asio::ip::udp::endpoint multicastEndpoint{ m_localAdapter.is_loopback()?
+				boost::asio::ip::make_address(c_clientIP):c_multicastGeneral, c_ptpGeneralPort };
 			const std::vector<uint8_t> buffer{ CreateFollowUpMessage() };
 			const size_t bytesSent
 			{

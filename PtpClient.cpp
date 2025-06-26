@@ -204,10 +204,14 @@ namespace PTP
 		m_eventSocket.bind(localListenEndpoint, ec);
         if (ec)
             throw std::runtime_error("Failed to bind event socket");
-		m_eventSocket.set_option(
-			boost::asio::ip::multicast::join_group(c_multicastEvent, m_localAdapter.to_v4()));
-		std::cout << "Client Event joined multicast group " << c_multicastEvent.to_string()
-			<< " on interface " << m_localAdapter.to_string() << std::endl;
+
+		if (!m_localAdapter.is_loopback())
+		{
+		  m_eventSocket.set_option(
+		  	boost::asio::ip::multicast::join_group(c_multicastEvent, m_localAdapter.to_v4()));
+		 std::cout << "Client Event joined multicast group " << c_multicastEvent.to_string()
+		 	<< " on interface " << m_localAdapter.to_string() << std::endl;
+		}
 	}
 
 	void Client::SetupGeneralSocket(const std::string& serverHost)
@@ -227,15 +231,18 @@ namespace PTP
 		m_generalSocket.bind(localListenEndpoint, ec);
         if (ec)
             throw std::runtime_error("Failed to bind general socket"); 
-		m_generalSocket.set_option(
-			boost::asio::ip::multicast::join_group(c_multicastGeneral, m_localAdapter.to_v4()));
-		std::cout << "Client General joined multicast group " << c_multicastGeneral.to_string()
-			<< " on interface " << m_localAdapter.to_string() << std::endl;
+		if (!m_localAdapter.is_loopback())
+		{
+		 m_generalSocket.set_option(
+		  	boost::asio::ip::multicast::join_group(c_multicastGeneral, m_localAdapter.to_v4()));
+		 std::cout << "Client General joined multicast group " << c_multicastGeneral.to_string()
+		 	<< " on interface " << m_localAdapter.to_string() << std::endl;
+		}
 	}
 
 	void Client::UpdateMeanPathDelay()
 	{
-        std::cout << "UpdateMeanPathDelay "<< std::endl;
+
 		if (m_timestampSets.empty())
 			return;
 
