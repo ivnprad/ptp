@@ -4,6 +4,7 @@
 
 
 #include "Utils.h"
+#include "KalmanFilter1D.h"
 
 namespace PTP
 {
@@ -69,7 +70,6 @@ namespace PTP
 		std::optional<double> m_meanPathDelay;
 		double m_filteredDelay;
 		uint16_t m_sequenceId{ 0 };
-		// KalmanFilter1D m_kalmanFilter{ 10.0, 1e4/*1.0, 1e4*//*1e-3, 1e3*/ }; // Example process and measurement noise values 
-		//AdaptiveKalmanFilter1D m_kalmanFilter{ 10.0 }; // Example process noise and window size
+		KalmanFilter1D m_kalmanFilter;
 	};
 }

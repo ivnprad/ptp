@@ -1,4 +1,4 @@
-# include "PtpClient.h"
+#include "PtpClient.h"
 #include <range/v3/all.hpp> 
 
 #include <iostream>
@@ -260,71 +260,30 @@ namespace PTP
 			return ((t4 - t1) - (t3 - t2)) / 2.0;
 		};
 
+		const auto aboveZero = [](const auto pathDelay)
+		{
+			return pathDelay>0;
+		};
+
 		const auto toMicroseconds = [](const auto& value)
 		{
 			return value / 1000.0;
 		};
 
-/*         auto pathDelays = m_timestampSets
+        auto pathDelays = m_timestampSets
                 | ranges::views::filter(isComplete)
                 | ranges::views::reverse
                 | ranges::views::take(c_maxTimestampSets)
                 | ranges::views::transform(calculatePathDelay)
+				| ranges::views::filter(aboveZero)
                 | ranges::views::transform(toMicroseconds)
-                | ranges::to_vector; */
+                | ranges::to_vector;
 
-
-		// if (!pathDelays.empty())
-		// {
-			//m_meanPathDelay = m_kalmanFilter.update(pathDelays.back());
-			//std::cout << std::format("Mean Path Delay: {:.1f} us ", *m_meanPathDelay) << std::endl;
-			//const auto sum = std::accumulate(pathDelays.begin(), pathDelays.end(), 0.0);
-			//m_meanPathDelay = sum / pathDelays.size();
-
-
-			// trimmed average
-			//auto filtered = pathDelays;
-			//std::sort(filtered.begin(), filtered.end());
-
-			//size_t trimCount = filtered.size() / 5;
-			//auto begin = filtered.begin() + trimCount;
-			//auto end = filtered.end() - trimCount;
-
-			//double sum = std::accumulate(begin, end, 0.0);
-			//m_meanPathDelay = sum / std::distance(begin, end);
-
-			//std::cout << std::format("Mean Path Delay: {:.3f} ns", *m_meanPathDelay) << std::endl;
-
-			//  Statistical clipping filter
-			//auto filtered = pathDelays;
-			//std::sort(filtered.begin(), filtered.end());
-
-			//double median = filtered[filtered.size() / 2];
-
-			//// Allow values within �X ns of the median (e.g., 100000 ns)
-			//constexpr double maxDeviation = 100000.0;
-
-			//auto clipped = filtered
-			//	| std::views::filter([&](double d)
-			//{
-			//	return std::abs(d - median) <= maxDeviation;
-			//})
-			//	| std::ranges::to<std::vector>();
-
-			//double mean = std::accumulate(clipped.begin(), clipped.end(), 0.0) / clipped.size();
-
-
-
-			//const double variance = std::accumulate(clipped.begin(), clipped.end(), 0.0,
-			//	[mean](double acc, double val)
-			//{
-			//	return acc + (val - mean) * (val - mean);
-			//}) / clipped.size();
-
-			//const double stddev = std::sqrt(variance);
-
-			//std::cout << std::format("Mean Path Delay: {:.3f} ns  stddev {:.3f} ", mean, stddev) << std::endl;
-		// }
+		if (!pathDelays.empty())
+		{
+			const double rawMeasurement=pathDelays.back();
+			m_meanPathDelay = m_kalmanFilter.Update(rawMeasurement);
+		}
 	}
 
 	std::vector<uint8_t> Client::CreateDelayRequest()
