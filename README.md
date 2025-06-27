@@ -43,8 +43,6 @@ This project implements a simplified **Precision Time Protocol (PTP)** using **B
 
 ## 📝 TODO
 
-## 📝 TODO
-
 - [ ] **Implement per-request coroutine handler pattern in server**
 
     > One perpetual Listener task:  
@@ -77,9 +75,8 @@ This project implements a simplified **Precision Time Protocol (PTP)** using **B
 ---
 
 ## Usage
-Start Server ./PTP
-Start Client ./PTP --Client --IpAddress 127.0.0.10
-
+- Start Server ./PTP
+- Start Client ./PTP --Client --IpAddress 127.0.0.10
 
 ### 🛠️ Compilation (Example: Clang)
 
