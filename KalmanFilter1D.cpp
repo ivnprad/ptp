@@ -6,6 +6,15 @@
 
 namespace PTP
 {
+    namespace
+    {
+        double mean(const std::deque<double>& d) {
+            if (d.empty()) return 0.0;
+            double sum = std::accumulate(d.begin(), d.end(), 0.0);
+            return sum / d.size();
+        }
+    }
+
     KalmanFilter1D::KalmanFilter1D(double initialEstimate ,
         size_t windowSize ,
         double qScale ,
@@ -20,7 +29,18 @@ namespace PTP
 
     double KalmanFilter1D::Update(double measurement)
     {
-        UpdateMeasurementNoise(measurement);
+        //UpdateMeasurementNoise(measurement);
+
+        const double innovation { measurement - m_currentEstimate};
+        m_innovationHistory.push_back(innovation*innovation);
+        if (m_innovationHistory.size() > 20) {
+            m_innovationHistory.pop_front();
+        }
+        double innovationVar = mean(m_innovationHistory);
+        m_measurementNoise = innovationVar - m_estimateUncertainty;
+        if (m_measurementNoise < 1e-6) 
+            m_measurementNoise = 1e-6;  // prevent negative or zero R
+
         UpdateProcessNoise();
         ExtrapolateCovariance();
         CalculateKalmanGain();
@@ -29,33 +49,42 @@ namespace PTP
 
 
 
-        const double innovation { measurement - m_currentEstimate};
-        const double nis {(innovation * innovation) 
+        
+
+
+
+        const auto inno = measurement-m_currentEstimate;
+        m_innoHistory.push_back(inno);
+        if (m_innoHistory.size()>maxElements)
+            m_innoHistory.pop_front();
+
+        const double nis {(inno * inno) 
             / (GetEstimateUncertainty() + GetMeasurementNoise())};
 
+        m_nisHistory.push_back(nis);
+        if (m_nisHistory.size()>maxElements)
+            m_nisHistory.pop_front();
+
+        // std::cout << std::format(
+        //         "Raw: {:.3f} us | Estimate: {:.3f} us | K: {:.7f} | R: {:.7f} | Q: {:.7f} | P: {:.7f} | NIS:{:.7f} \r\n ",
+        //         measurement, 
+        //         m_currentEstimate, 
+        //         GetKalmanGain(), 
+        //         GetMeasurementNoise(), 
+        //         GetProcessNoise(), 
+        //         GetEstimateUncertainty(),
+        //         nis
+        //     );
+
         std::cout << std::format(
-                "Raw: {:.3f} us | Estimate: {:.3f} us | K: {:.7f} | R: {:.7f} | Q: {:.7f} | P: {:.7f} | NIS:{:.7f} \r\n ",
+                "Raw: {:.3f} us | Estimate: {:.3f} us | K: {:.7f} | R: {:.7f} | Innovation mean:{:.3f} | NIS mean:{:.3f}  \r\n ",
                 measurement, 
                 m_currentEstimate, 
                 GetKalmanGain(), 
                 GetMeasurementNoise(), 
-                GetProcessNoise(), 
-                GetEstimateUncertainty(),
-                nis
+                mean(m_innoHistory),
+                mean(m_nisHistory)
             );
-
-        if (nis > 5.0) 
-        {
-            m_consecutiveHighNIS++;
-            if (m_consecutiveHighNIS > 5) 
-            {
-                std::cerr<<"Kalman filter may be stuck or overly conservative."<<std::endl;
-            }
-        }
-        else 
-        {
-            m_consecutiveHighNIS = 0;
-        }
 
         return m_currentEstimate;
     }

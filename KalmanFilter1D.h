@@ -31,17 +31,23 @@ namespace PTP
         void ExtrapolateCovariance();
         void CalculateKalmanGain();
 
-        double m_currentEstimate; // Microseconds
-        double m_estimateUncertainty{1.0};  
-        double m_measurementNoise{1.0};  
-        double m_processNoise{1.0};  
-        double m_kalmanGain{0.0};
+        double m_currentEstimate;           // Microseconds
+        double m_estimateUncertainty{1.0};  // P
+        double m_measurementNoise{1.0};     // R
+        double m_processNoise{1.0};         // Q
+        double m_kalmanGain{0.0};           // K
         double m_consecutiveHighNIS{0.0};
 
         std::optional<double> m_prevEstimate; 
+        double m_prevEstimateCovariance{0.0};
         size_t m_windowSize;
         double m_qScale, m_qMin, m_qMax;
 
         std::deque<double> m_measurements;
+        std::deque<double> m_innovationHistory;
+        std::deque<double> m_nisHistory;
+        std::deque<double> m_innoHistory;
+        const size_t maxElements{20};
+
     };
 }

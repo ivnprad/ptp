@@ -5,6 +5,7 @@
 
 #include "Utils.h"
 #include "KalmanFilter1D.h"
+#include "KalmanFilterBias.h"
 
 namespace PTP
 {
@@ -70,6 +71,7 @@ namespace PTP
 		std::optional<double> m_meanPathDelay;
 		double m_filteredDelay;
 		uint16_t m_sequenceId{ 0 };
-		KalmanFilter1D m_kalmanFilter;
+		//KalmanFilter1D m_kalmanFilter;
+		KalmanFilterBias m_kalmanFilterBias;
 	};
 }
