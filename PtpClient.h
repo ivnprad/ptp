@@ -5,7 +5,6 @@
 
 #include "Utils.h"
 #include "KalmanFilter1D.h"
-#include "KalmanFilterBias.h"
 
 namespace PTP
 {
@@ -72,6 +71,5 @@ namespace PTP
 		double m_filteredDelay;
 		uint16_t m_sequenceId{ 0 };
 		KalmanFilter1D m_kalmanFilter;
-		//KalmanFilterBias m_kalmanFilter;
 	};
 }
