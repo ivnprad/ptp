@@ -194,6 +194,4 @@ namespace PTP
 		headerPtr->sequenceId = receiveHeader.sequenceId;
 		return buffer;
 	}
-
-
 }

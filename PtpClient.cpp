@@ -282,8 +282,7 @@ namespace PTP
 		if (!pathDelays.empty())
 		{
 			const double rawMeasurement=pathDelays.back();
-			//m_meanPathDelay = m_kalmanFilter.Update(rawMeasurement);
-			m_meanPathDelay = m_kalmanFilterBias.Update(rawMeasurement);
+			m_meanPathDelay = m_kalmanFilter.Update(rawMeasurement);
 		}
 	}
 

@@ -71,7 +71,7 @@ namespace PTP
 		std::optional<double> m_meanPathDelay;
 		double m_filteredDelay;
 		uint16_t m_sequenceId{ 0 };
-		//KalmanFilter1D m_kalmanFilter;
-		KalmanFilterBias m_kalmanFilterBias;
+		KalmanFilter1D m_kalmanFilter;
+		//KalmanFilterBias m_kalmanFilter;
 	};
 }

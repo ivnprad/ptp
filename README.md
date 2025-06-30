@@ -35,15 +35,34 @@ This project implements a simplified **Precision Time Protocol (PTP)** using **B
 
 ---
 
-## Kalman Filter Insights
+## Kalman Filter Insights (1-D)
 
-- Adjusts process noise (Q) based on estimate changes
-- Adjusts measurement noise (R) using recent variance
-- Logs diagnostic info like Kalman gain, noise levels, and estimation accuracy
+- **Adaptive process–noise `Q`**  
+  *Q* is recomputed from the _squared_ step size of the estimate  
+  (`Δestimate²`) and then clamped to **[1 e-6 … 10]**.  
+  → The filter *loosens* when path-delay drifts and *tightens* when it is stable.
+
+- **Adaptive measurement–noise `R`**  
+  Uses a 20-sample sliding window of raw delays, computes the unbiased variance,  
+  and floors it at **1 e-6** to prevent divide-by-zero.
+
+- **Automatic freeze-protection**  
+  Before every gain calculation the code inflates `P` by ×10 whenever  
+  `P < 0.1 · R`.  
+  This guarantees a minimum Kalman-gain of **≈ 0.09** so the filter never locks up when `R` explodes.
+
+- **Consistent-tracking diagnostics**  
+  Keeps bounded histories of **innovation** and **NIS** (χ² consistency):  
+  * mean innovation → bias check (should hover near 0)  
+  * mean NIS → tuning check (should hover near 1) — printed each cycle.
+
+- **One-line gain formula**  
+
+  ```math
+  K \;=\; \frac{P/R}{1 + P/R}
 
 ## 📝 TODO
 
-- [ ] Achieve Zero-Mean Innovation and NIS close to 1 for loopback testing. 
 - [ ] Add unit tests for Kalman filter  
 - [ ] Extend support to real Ethernet PTP hardware  
 - [ ] Add configuration for multicast groups and interface selection
