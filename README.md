@@ -43,23 +43,7 @@ This project implements a simplified **Precision Time Protocol (PTP)** using **B
 
 ## 📝 TODO
 
-- [ ] **Implement per-request coroutine handler pattern in server**
-
-    > One perpetual Listener task:  
-    > Its only job is to `co_await` a new request.  
-    > Many temporary Handler tasks:  
-    > When the Listener gets a request, it doesn't process it directly.  
-    > Instead, it immediately spawns a new, temporary coroutine to handle that one request.  
-    > It passes all the necessary information (like the client's endpoint) as parameters to this new handler task.  
-    > The Listener immediately loops back to `co_await` the next request, while the handler task for the first client runs concurrently.  
-    > This way, the server can accept a new request from Client B while it's still processing Client A, making it truly concurrent and scalable.
-
-- [ ] **Refactor `WaitDelayRequest` to extract `sequenceId` and pass it**
-
-    > The `sequenceId` should be extracted when a request is received.  
-    > It must then be passed to `SendRequestReponse()` and `CreateDelayResponseMessage()`.  
-    > The `m_sequenceId` member is owned by the broadcast logic and should not be modified elsewhere.
-
+- [ ] Achieve Zero-Mean Innovation and NIS close to 1 for loopback testing. 
 - [ ] Add unit tests for Kalman filter  
 - [ ] Extend support to real Ethernet PTP hardware  
 - [ ] Add configuration for multicast groups and interface selection

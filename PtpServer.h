@@ -27,11 +27,14 @@ namespace PTP
 		boost::asio::awaitable<void> Receive();
 		boost::asio::awaitable<void> SendSyncMessage();
 		boost::asio::awaitable<void> SendFollowUpMessage();
-		boost::asio::awaitable<void> WaitDelayRequest();
-		boost::asio::awaitable<void> SendRequestReponse();
 		std::vector<uint8_t> CreateSyncMessage();
 		std::vector<uint8_t> CreateFollowUpMessage();
-		std::vector<uint8_t> CreateDelayResponseMessage();
+		boost::asio::awaitable<void>  SendDelayResponse(
+			PtpTimestamp requestTimeStamp,
+			std::vector<uint8_t> buffer, boost::asio::ip::udp::endpoint endpoint);
+		std::vector<uint8_t> CreateDelayResponseMessage(
+			PtpTimestamp requestTimeStamp,
+			std::vector<uint8_t> receiveBuffer);
 
 		boost::asio::io_context& m_ioContext;
 		boost::asio::ip::address m_localAdapter;
@@ -39,8 +42,6 @@ namespace PTP
 		boost::asio::ip::udp::socket m_generalSocket;
 		boost::asio::ip::udp::endpoint m_remoteEventEndpoint;
 		boost::asio::ip::udp::endpoint m_remoteGeneralEndpoint;
-		std::array<char, 1024> m_eventRecvBuffer{ {} };
-		std::array<char, 1024> m_generalRecvBuffer{ {} };
 		uint16_t m_sequenceId{ 0 };
 		PtpTimestamp m_syncTimestamp;
 		PtpTimestamp m_requestTimeStamp;
